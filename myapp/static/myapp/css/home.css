@@ -1,0 +1,55 @@
+/* Общие стили для всех страниц */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  color: #0066cc;
+}
+
+/* Стили для страницы личного кабинета */
+form {
+  background-color: #f2f2f2;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  margin: 0 auto;
+}
+
+form h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+form input[type="text"],
+form input[type="email"],
+form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+}
+
+form button[type="submit"] {
+  background-color: #0066cc;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+form button[type="submit"]:hover {
+  background-color: #0050a2;
+}
+
+/* Ссылки */
+a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

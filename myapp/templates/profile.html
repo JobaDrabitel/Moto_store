@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+        {% load static %}
+     <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/home.css' %}">
+    <title>Личный кабинет</title>
+</head>
+<body>
+    <h1>Личный кабинет</h1>
+    <form method="POST" action="{% url 'profile' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {% if user.image %}
+            <img src="{{ user.image.url }}" alt="Фото профиля">
+        {% endif %}
+        <button type="submit">Сохранить</button>
+    </form>
+</body>
+</html>

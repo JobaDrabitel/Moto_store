@@ -1,0 +1,55 @@
+/* Общие стили для всех страниц */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  color: #0066cc;
+}
+
+/* Стили для каждой страницы */
+/* Главная страница */
+.home-content {
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+/* Каталог */
+.catalog-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* Карточка товара */
+.product-details {
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Оформление заявки */
+.checkout-form {
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+.checkout-form input[type="text"],
+.checkout-form input[type="email"],
+.checkout-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* Ссылки */
+a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

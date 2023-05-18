@@ -1,0 +1,30 @@
+<!-- order_create.html -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
+    <title>Оформление заказа</title>
+</head>
+<body>
+    <h1>Оформление заказа</h1>
+    <h2>Информация о товаре:</h2>
+    <p>Название: {{ product.name }}</p>
+    <p>Цена: {{ product.price }}</p>
+    <p>Описание: {{ product.description }}</p>
+    <!-- Дополнительная информация о товаре -->
+
+    <h2>Введите данные для оформления заказа:</h2>
+    <form method="post" action="{% url 'myapp:order_create' product.id %}">
+        {% csrf_token %}
+        <!-- Форма для ввода данных о заказе -->
+        <!-- Например, поля для имени, адреса, способа доставки и оплаты -->
+        <!-- Обратите внимание на использование {% csrf_token %} для защиты от CSRF-атак -->
+
+        <!-- Добавляем кнопку для сохранения заказа -->
+        <input type="submit" value="Оформить заказ">
+    </form>
+</body>
+</html>

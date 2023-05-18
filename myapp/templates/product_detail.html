@@ -1,0 +1,23 @@
+<!-- product_detail.html -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
+    <title>{{ product.name }}</title>
+</head>
+
+<body>
+    <h1>{{ product.name }}</h1>
+    <p>Категория: {{ product.category }}</p>
+    <p>Описание: {{ product.description }}</p>
+    <p>Цена: {{ product.price }}</p>
+    <img src="{{ product.imageurl }}" alt="{{ product.name }}" width="200">
+
+    <!-- Добавленная кнопка для перехода на страницу оформления заказа -->
+    <a href="{% url 'myapp:order_create' product.id %}">Оформить заказ</a>
+</body>
+
+</html>

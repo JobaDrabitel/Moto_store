@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Мото-мото</title>
+        {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/home.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Мото-мото</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Главная</a></li>
+                <li><a href="/myapp/catalog/">Каталог</a></li>
+                <li><a href="/myapp/cart/">Корзина</a></li>
+                <li><a href="/myapp/contact/">Контакты</a></li>
+                <li class="user-info">
+                    {% if request.user.is_authenticated %}
+                    <span>Привет, <a href="{% url 'myapp:profile' %}">{{ request.user.username }}</a></span>
+                    <a href="{% url 'myapp:logout' %}">Выход</a>
+                    {% else %}
+                    <a href="{% url 'myapp:user_login' %}">Вход</a>
+                    <a href="{% url 'myapp:registration' %}">Регистрация</a>
+                    {% endif %}
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="content">
+        <h2>Добро пожаловать в мой интернет магазин мотоциклов!</h2>
+        <p>Здесь вы можете найти широкий ассортимент мотоциклов различных марок и моделей.</p>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Мото-мото. Все права защищены.</p>
+    </footer>
+</body>
+</html>

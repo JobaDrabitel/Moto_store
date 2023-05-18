@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+     {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/home.css' %}">
+    <title>Подтверждение заказа</title>
+</head>
+
+<body>
+    <h1>Заказ оформлен успешно!</h1>
+    <h2>Детали заказа:</h2>
+    <p>Номер заказа: {{ order.id }}</p>
+    <p>Дата заказа: {{ order.order_date }}</p>
+    <p>Пользователь: {{ order.user.username }}</p>
+    <p>Сумма заказа: {{ order.total_price }}</p>
+    <p>Метод доставки: {{ order_delivery.shipping_method.name }}</p>
+    <p>Метод оплаты: {{ order_delivery.payment_method.name }}</p>
+    <p>Адрес доставки: {{ order_delivery.address }}</p>
+
+    <h2>Товары:</h2>
+    <ul>
+        {% for order_item in order.orderitem_set.all %}
+            <li>
+                <h3>{{ order_item.product.name }}</h3>
+                <p>Количество: {{ order_item.quantity }}</p>
+                <p>Цена: {{ order_item.price }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>
