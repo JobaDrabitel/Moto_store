@@ -24,14 +24,16 @@ SECRET_KEY = 'django-insecure-6s85jh38my%qnu6pk(v$3+u7d$2lf&v@a)9@e!qa!a1__@k!%e
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+REST_FRAMEWORK = {
+    # YOUR SETTINGS
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
 INSTALLED_APPS = [
-
+    'drf_spectacular',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
