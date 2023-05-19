@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'drf_spectacular',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,8 +43,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'myapp',
     'rest_framework',
-    'drf'
+    'drf',
+    'channels',
+    'celery'
 ]
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
+ASGI_APPLICATION = 'moto_store.asgi.application'
 # settings.py
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -51,7 +60,16 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'legenadary.pigeon@gmail.com'  # Укажите вашу учетную запись Gmail
 EMAIL_HOST_PASSWORD = 'adrshhphfrovjqiz'  # Укажите пароль от вашей учетной записи Gmail
 EMAIL_USE_TLS = True
+CELERY_BROKER_URL = 'redis://d#1777353:Sasai123!@redis-12016.c90.us-east-1-3.ec2.cloud.redislabs.com:12016'  # URL для подключения к брокеру сообщений (например, Redis)
 
+# ...
+
+# Подключение Celery к Django
+from moto_store.celery_app import Celery
+
+app = Celery('your_project_name')
+app.config_from_object('django.conf:settings', namespace='CELERY')
+app.autodiscover_tasks()
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -81,7 +99,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'moto_store.wsgi.application'
+
 
 
 # Database
@@ -140,4 +158,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # URL-префикс для изображений
 MEDIA_URL = '/media/'
-
