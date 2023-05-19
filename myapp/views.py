@@ -1,55 +1,87 @@
-from myapp.models import Product, Cart, Order, User, OrderItem, ShippingMethod, PaymentMethod, OrderDelivery
+import requests
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import RegistrationForm
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import logout
-from django.contrib.auth.hashers import make_password
-from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import UserProfileForm
-from django.shortcuts import render, get_object_or_404
-from myapp.models import Product
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, Order, OrderItem, ShippingMethod, PaymentMethod
-from django.shortcuts import render, get_object_or_404
-from .models import Product, Order
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.hashers import make_password
+from django.db import transaction
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
-from myapp.forms import OrderForm
-from myapp.models import Product, Order, OrderItem, ShippingMethod, PaymentMethod
+from requests import request
+from myapp.models import Product, PaymentMethod
+from .forms import OrderForm
+from .forms import RegistrationForm
+from .forms import UserProfileForm
+from .models import Order, OrderItem, ShippingMethod, OrderDelivery
+from django.shortcuts import get_object_or_404
+
+def get_random_question():
+    response = requests.get('http://jservice.io/api/random')
+    if response.status_code == 200:
+        data = response.json()
+        if data:
+            question = data[0]['question']
+            answer = data[0]['answer']
+            return question, answer
+    return None, None
+def order_detail(request, order_id):
+    order = Order.objects.get(id=order_id)
+    return render(request, 'order_detail.html', {'order': order})
 
 
+@transaction.atomic
 def order_create(request, product_id):
-    product = Product.objects.get(pk=product_id)
+    product = get_object_or_404(Product, pk=product_id)
+    shipping_methods = ShippingMethod.objects.all()
+    payment_methods = PaymentMethod.objects.all()
 
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            name = form.cleaned_data['name']
-            address = form.cleaned_data['address']
-            # Получите выбранный способ доставки и оплаты из формы
-            # и сохраните их соответствующие объекты моделей ShippingMethod и PaymentMethod
-
-            # Создайте заказ
-            order = Order.objects.create(user=request.user, total_price=product.price)
-
-            # Создайте элемент заказа для выбранного товара
+            # Получаем ответ пользователя из формы
+            user_answer = form.cleaned_data['answer']
+            # Получаем сохраненное значение вопроса из сеанса
+            question = request.session.get('question')
+            # Проверяем ответ пользователя
+            if question and question['answer'] == user_answer:
+                total_price = float(product.price) * float(0.95)
+                print('good')
+            else:
+                total_price = product.price
+                print('no')
+            order = Order.objects.create(user=request.user, total_price=total_price)
             order_item = OrderItem.objects.create(order=order, product=product, quantity=1, price=product.price)
+            shipping_method_id = form.cleaned_data['shipping_method']
+            payment_method_id = form.cleaned_data['payment_method']
+            address = form.cleaned_data['address']
+            shipping_method = get_object_or_404(ShippingMethod, pk=shipping_method_id.id)
+            payment_method = get_object_or_404(PaymentMethod, pk=payment_method_id.id)
+            order_delivery = OrderDelivery.objects.create(order=order, shipping_method=shipping_method,
+                                                          payment_method=payment_method, address=address)
 
-            # Создайте объект OrderDelivery для заказа
-            # Передайте в него объекты ShippingMethod, PaymentMethod, и другие данные о доставке
-
-            # Сохраните заказ и связанные объекты
-            order.save()
-            order_item.save()
-            # Сохраните OrderDelivery
-
-            return redirect('order_detail', order_id=order.id)
+            return redirect('myapp:order_detail', order_id=order.id)
+        else:
+            print('Пошел нахуй')
     else:
         form = OrderForm()
 
-    context = {'form': form, 'product': product}
+    question, answer = get_random_question()
+    print(answer)
+    request.session['question'] = {'question': question, 'answer': answer}
+
+    context = {
+        'form': form,
+        'product': product,
+        'shipping_methods': shipping_methods,
+        'payment_methods': payment_methods,
+        'product_id': product_id,
+        'question': question
+    }
     return render(request, 'order_create.html', context)
+
+
 
 
 def product_detail(request, product_id):
@@ -103,7 +135,6 @@ def registration(request):
     return render(request, 'registration.html', {'form': form})
 
 
-
 def home(request):
     products = Product.objects.all()
     context = {
@@ -131,17 +162,20 @@ def order(request):
 
     return render(request, 'order.html')
 
+
 def favorites(request):
     # Получение избранных товаров пользователя
     # Отображение избранных товаров
 
     return render(request, 'favorites.html')
 
+
 def cart(request):
     # Получение корзины пользователя
     # Отображение корзины
 
     return render(request, 'cart.html')
+
 
 def delivery(request):
     shipping_methods = ShippingMethod.objects.all()
@@ -150,8 +184,10 @@ def delivery(request):
     }
     return render(request, 'delivery.html', context)
 
+
 def about(request):
     return render(request, 'about.html')
+
 
 def contact(request):
     return render(request, 'contact.html')
@@ -178,5 +214,3 @@ def add_product(request):
         return redirect('catalog')
     else:
         return render(request, 'add_product.html')
-
-

@@ -1,4 +1,4 @@
-from myapp.models import Product
+from myapp.models import Product, ShippingMethod, PaymentMethod
 from django.contrib.auth.forms import UserCreationForm
 from .models import User
 from django.contrib.auth.forms import UserChangeForm
@@ -8,6 +8,9 @@ from django import forms
 class OrderForm(forms.Form):
     name = forms.CharField(max_length=100)
     address = forms.CharField(max_length=100)
+    shipping_method = forms.ModelChoiceField(queryset=ShippingMethod.objects.all())
+    payment_method = forms.ModelChoiceField(queryset=PaymentMethod.objects.all())
+    answer = forms.CharField(max_length=300)
 
 
 class UserProfileForm(UserChangeForm):

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Корзина</h1>
+  {% if cart.products.exists %}
+    <table>
+      <thead>
+        <tr>
+          <th>Наименование</th>
+          <th>Цена</th>
+          <th>Количество</th>
+          <th>Сумма</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in cart.products.all %}
+          <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ cart.quantity }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="{% url 'myapp:place_order' %}" class="btn btn-primary">Оформить заказ</a>
+  {% else %}
+    <p>Ваша корзина пуста.</p>
+  {% endif %}
+{% endblock %}

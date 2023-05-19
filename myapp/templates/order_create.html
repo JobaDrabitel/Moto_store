@@ -1,12 +1,14 @@
-<!-- order_create.html -->
-
 <!DOCTYPE html>
 <html>
-
 <head>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/styles.css' %}">
     <title>Оформление заказа</title>
+    <script>
+        function disableButton() {
+            document.getElementById("answer-btn").disabled = true;
+        }
+    </script>
 </head>
 <body>
     <h1>Оформление заказа</h1>
@@ -14,7 +16,6 @@
     <p>Название: {{ product.name }}</p>
     <p>Цена: {{ product.price }}</p>
     <p>Описание: {{ product.description }}</p>
-    <!-- Дополнительная информация о товаре -->
 
     <h2>Введите данные для оформления заказа:</h2>
     <form method="post" action="{% url 'myapp:order_create' product.id %}">
@@ -23,7 +24,31 @@
         <!-- Например, поля для имени, адреса, способа доставки и оплаты -->
         <!-- Обратите внимание на использование {% csrf_token %} для защиты от CSRF-атак -->
 
-        <!-- Добавляем кнопку для сохранения заказа -->
+        <label for="name">Имя:</label>
+        <input type="text" id="name" name="name" required>
+        <br><br>
+        <label for="address">Адрес:</label>
+        <input type="text" id="address" name="address" required>
+        <br><br>
+        <label for="shipping_method">Способ доставки:</label>
+        <select id="shipping_method" name="shipping_method" required>
+            {% for shipping_method in shipping_methods %}
+            <option value="{{ shipping_method.id }}">{{ shipping_method.name }} - {{ shipping_method.cost }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="payment_method">Способ оплаты:</label>
+        <select id="payment_method" name="payment_method" required>
+            {% for payment_method in payment_methods %}
+            <option value="{{ payment_method.id }}">{{ payment_method.name }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <p>Question: {{ question }}</p>
+        <input type="text" name="answer" placeholder="Answer">
+        <button type="submit" id="answer-btn" onclick="disableButton()">Ответить</button>
+
+        <!-- Добавляем кнопку для оформления заказа -->
         <input type="submit" value="Оформить заказ">
     </form>
 </body>

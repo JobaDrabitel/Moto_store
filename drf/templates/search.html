@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Results</title>
+</head>
+<body>
+    <h1>Search Results</h1>
+
+    {% if motorcycles %}
+        <ul>
+            {% for motorcycle in motorcycles|slice:":10" %}
+                <li>
+                    <h2>{{ motorcycle.make }} {{ motorcycle.model }}</h2>
+                    <p>Year: {{ motorcycle.year }}</p>
+                    <p>Engine Size: {{ motorcycle.engine_size }}</p>
+                    <p>Top Speed: {{ motorcycle.top_speed }}</p>
+                    <!-- Добавьте дополнительные поля, которые вы хотите отобразить -->
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No motorcycles found.</p>
+    {% endif %}
+</body>
+</html>
