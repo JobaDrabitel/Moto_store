@@ -16,8 +16,11 @@
     <p>Цена: {{ product.price }}</p>
     <img src="{{ product.imageurl }}" alt="{{ product.name }}" width="200">
 
-    <!-- Добавленная кнопка для перехода на страницу оформления заказа -->
-<a href="{% url 'myapp:order_create' product.id %}" class="btn btn-primary">оформить заказ</a>
+    <!-- Добавленная кнопка для добавления товара в корзину -->
+    <form method="post" action="{% url 'myapp:add_to_cart' product.id %}">
+        {% csrf_token %}
+        <input type="submit" value="Добавить в корзину" class="btn btn-primary">
+    </form>
 </body>
 
 </html>

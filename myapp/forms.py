@@ -10,7 +10,6 @@ class OrderForm(forms.Form):
     address = forms.CharField(max_length=100)
     shipping_method = forms.ModelChoiceField(queryset=ShippingMethod.objects.all())
     payment_method = forms.ModelChoiceField(queryset=PaymentMethod.objects.all())
-    answer = forms.CharField(max_length=300)
 
 
 class UserProfileForm(UserChangeForm):

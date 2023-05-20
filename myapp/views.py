@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from requests import request
@@ -16,6 +17,51 @@ from .forms import RegistrationForm
 from .forms import UserProfileForm
 from .models import Order, OrderItem, ShippingMethod, OrderDelivery
 from django.shortcuts import get_object_or_404
+from django.db.models import Sum
+
+def remove_from_cart(request, item_id):
+    cart = request.session.get('cart', [])
+    try:
+        item_id = int(item_id)  # Преобразование в целочисленное значение
+        if item_id in cart:
+            cart.remove(item_id)
+            request.session['cart'] = cart
+        return redirect('myapp:cart')
+    except (ValueError, KeyError):
+        # Обработка случая, когда item_id не является числом или предмет не найден в корзине
+        return HttpResponse('Item not found in cart.')
+
+
+
+
+
+
+def cart(request):
+    cart_products_ids = request.session.get('cart', [])
+    cart_products = Product.objects.filter(id__in=cart_products_ids)
+    cart_total_price = cart_products.aggregate(total_price=Sum('price'))['total_price'] or 0
+
+    context = {
+        'cart_products': cart_products,
+        'cart_total_price': cart_total_price,
+    }
+    return render(request, 'cart.html', context)
+
+
+
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    # Проверяем, есть ли уже корзина в сессии
+    if 'cart' not in request.session:
+        request.session['cart'] = []
+
+    # Добавляем товар в корзину в сессии
+    request.session['cart'].append(product.id)
+    request.session.modified = True  # Сохраняем изменения в сессии
+
+    return redirect('myapp:cart')
+
+
 
 def get_random_question():
     response = requests.get('http://jservice.io/api/random')
@@ -31,45 +77,66 @@ def order_detail(request, order_id):
     return render(request, 'order_detail.html', {'order': order})
 
 
+
 @transaction.atomic
-def order_create(request, product_id):
-    product = get_object_or_404(Product, pk=product_id)
+def order_create(request):
     shipping_methods = ShippingMethod.objects.all()
     payment_methods = PaymentMethod.objects.all()
+
+    cart_products_ids = request.session.get('cart', [])
+    cart_products = Product.objects.filter(id__in=cart_products_ids)
+
+    total_price = sum(product.price for product in cart_products)
 
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            # Получаем ответ пользователя из формы
-            user_answer = form.cleaned_data['answer']
-            # Получаем сохраненное значение вопроса из сеанса
-            question = request.session.get('question')
-            # Проверяем ответ пользователя
-            if question and question['answer'] == user_answer:
-                total_price = float(product.price) * float(0.95)
-                print('good')
-            else:
-                total_price = product.price
-                print('no')
-            order = Order.objects.create(user=request.user, total_price=total_price)
-            order_item = OrderItem.objects.create(order=order, product=product, quantity=1, price=product.price)
-            shipping_method_id = form.cleaned_data['shipping_method']
-            payment_method_id = form.cleaned_data['payment_method']
-            address = form.cleaned_data['address']
-            shipping_method = get_object_or_404(ShippingMethod, pk=shipping_method_id.id)
-            payment_method = get_object_or_404(PaymentMethod, pk=payment_method_id.id)
-            order_delivery = OrderDelivery.objects.create(order=order, shipping_method=shipping_method,
-                                                          payment_method=payment_method, address=address)
+            user = request.user
+            print('valid')
+            with transaction.atomic():
+                order = Order.objects.create(user=user, total_price=total_price)
+
+                for product in cart_products:
+                    quantity = request.session['cart'].count(product.id)
+                    price = product.price
+
+                    OrderItem.objects.create(order=order, product=product, quantity=quantity, price=price)
+
+                shipping_method_id = request.POST.get('shipping_method')
+                if shipping_method_id is not None:
+                    shipping_method = get_object_or_404(ShippingMethod, pk=shipping_method_id)
+                payment_method_id = form.cleaned_data['payment_method'].id
+                address = form.cleaned_data['address']
+                payment_method = PaymentMethod.objects.get(pk=payment_method_id)
+                order_delivery = OrderDelivery.objects.create(
+                    order=order, shipping_method=shipping_method, payment_method=payment_method, address=address
+                )
+
+                request.session['cart'] = []
 
             return redirect('myapp:order_detail', order_id=order.id)
         else:
-            print('Пошел нахуй')
+            print('Form is not valid')
     else:
         form = OrderForm()
 
     question, answer = get_random_question()
-    print(answer)
     request.session['question'] = {'question': question, 'answer': answer}
+
+    context = {
+        'form': form,
+        'shipping_methods': shipping_methods,
+        'payment_methods': payment_methods,
+        'cart_products': cart_products,
+        'total_price': total_price,
+        'question': question,
+        'answer': answer,
+    }
+    return render(request, 'order_create.html', context)
+
+
+
+
 
     context = {
         'form': form,
@@ -79,7 +146,7 @@ def order_create(request, product_id):
         'product_id': product_id,
         'question': question
     }
-    return render(request, 'order_create.html', context)
+    return render(request, 'order_detail.html', {'order': order})
 
 
 
@@ -169,12 +236,6 @@ def favorites(request):
 
     return render(request, 'favorites.html')
 
-
-def cart(request):
-    # Получение корзины пользователя
-    # Отображение корзины
-
-    return render(request, 'cart.html')
 
 
 def delivery(request):
