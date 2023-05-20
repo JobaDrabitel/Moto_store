@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import requests
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -11,6 +13,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from requests import request
+from unicodedata import decimal
+
 from myapp.models import Product, PaymentMethod
 from .forms import OrderForm
 from .forms import RegistrationForm
@@ -18,6 +22,10 @@ from .forms import UserProfileForm
 from .models import Order, OrderItem, ShippingMethod, OrderDelivery
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
+channel_layer = get_channel_layer()
 
 def remove_from_cart(request, item_id):
     cart = request.session.get('cart', [])
@@ -70,6 +78,7 @@ def get_random_question():
         if data:
             question = data[0]['question']
             answer = data[0]['answer']
+            print (answer)
             return question, answer
     return None, None
 def order_detail(request, order_id):
@@ -94,8 +103,15 @@ def order_create(request):
             user = request.user
             print('valid')
             with transaction.atomic():
+                user_answer = request.POST.get('answer')
+                correct_answer = request.session['question']['answer']
+                if user_answer == correct_answer:
+                    total_price -= total_price * Decimal('0.05')
                 order = Order.objects.create(user=user, total_price=total_price)
-
+                async_to_sync(channel_layer.group_send)(
+                    "notifications",
+                    {"type": "notify_new_order", "order_id": order.id}
+                )
                 for product in cart_products:
                     quantity = request.session['cart'].count(product.id)
                     price = product.price
