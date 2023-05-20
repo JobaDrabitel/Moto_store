@@ -14,7 +14,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('myapp/', include('myapp.urls')),  # Добавьте эту строку
     path('', home, name='home'),
-    path('api/', include('drf.urls')),
+    path('drf/', include('drf.urls')),
     path('myapp/profile/', views.profile, name='profile'),
     path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('password_reset_done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),

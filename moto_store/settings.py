@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf',
     'channels',
-    'celery'
+    'celery',
+    'ws'
 ]
 CHANNEL_LAYERS = {
     'default': {

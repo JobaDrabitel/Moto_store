@@ -11,7 +11,7 @@ from django.urls import path
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'moto_store.settings')
 
-from ws.consumers import YourConsumer
+from myapp.consumers import NotificationConsumer
 
 
 django_asgi_app = get_asgi_application()
@@ -20,7 +20,7 @@ application = ProtocolTypeRouter({
     'http': django_asgi_app,
     'websocket': AuthMiddlewareStack(
         URLRouter([
-            path('ws', YourConsumer.as_asgi())
+            path('ws', NotificationConsumer.as_asgi())
         ])
     )
 })
