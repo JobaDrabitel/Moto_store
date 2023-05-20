@@ -82,8 +82,14 @@ def get_random_question():
             return question, answer
     return None, None
 def order_detail(request, order_id):
-    order = Order.objects.get(id=order_id)
-    return render(request, 'order_detail.html', {'order': order})
+    order = get_object_or_404(Order, id=order_id)
+    order_delivery = OrderDelivery.objects.get(order=order)
+
+    context = {
+        'order': order,
+        'order_delivery': order_delivery,
+    }
+    return render(request, 'order_detail.html', context)
 
 
 
@@ -116,7 +122,7 @@ def order_create(request):
                     quantity = request.session['cart'].count(product.id)
                     price = product.price
 
-                    OrderItem.objects.create(order=order, product=product, quantity=quantity, price=price)
+                OrderItem.objects.create(order=order, product=product, quantity=quantity, price=price)
 
                 shipping_method_id = request.POST.get('shipping_method')
                 if shipping_method_id is not None:
@@ -234,16 +240,7 @@ def catalog(request):
     return render(request, 'catalog.html', context)
 
 
-def order(request):
-    # Обработка оформления заказа
-    if request.method == 'POST':
-        # Получение данных из формы
-        # Создание объектов Order, OrderItem и OrderDelivery
-        # Сохранение объектов в базу данных
 
-        return render(request, 'order_confirmation.html')
-
-    return render(request, 'order.html')
 
 
 def favorites(request):
