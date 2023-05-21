@@ -71,11 +71,11 @@ CELERY_IMPORTS = ('moto_store.tasks',)
 CELERY_BEAT_SCHEDULE = {
     'decrease_prices': {
         'task': 'moto_store.tasks.decrease_prices',
-        'schedule': 1.0
+        'schedule': crontab(hour=17, minute=0)
     },
     'revert_prices': {
         'task': 'moto_store.tasks.revert_prices',
-        'schedule': 2.0
+        'schedule': crontab(hour=17, minute=30)
     },
 }
 
