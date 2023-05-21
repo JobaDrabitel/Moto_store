@@ -97,10 +97,8 @@ def order_detail(request, order_id):
 def order_create(request):
     shipping_methods = ShippingMethod.objects.all()
     payment_methods = PaymentMethod.objects.all()
-
     cart_products_ids = request.session.get('cart', [])
     cart_products = Product.objects.filter(id__in=cart_products_ids)
-
     total_price = sum(product.price for product in cart_products)
 
     if request.method == 'POST':
