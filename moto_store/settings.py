@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -61,14 +63,29 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'legenadary.pigeon@gmail.com'  # Укажите вашу учетную запись Gmail
 EMAIL_HOST_PASSWORD = 'adrshhphfrovjqiz'  # Укажите пароль от вашей учетной записи Gmail
 EMAIL_USE_TLS = True
-CELERY_BROKER_URL = 'redis://d#1777353:Sasai123!@redis-12016.c90.us-east-1-3.ec2.cloud.redislabs.com:12016'  # URL для подключения к брокеру сообщений (например, Redis)
+import  time
+# Настройки Celery
+CELERY_BROKER_URL = 'amqps://webaugdv:OnST-y9mKiGQ1lagdpmYWz2QVYVvZq9p@toad.rmq.cloudamqp.com/webaugdv'  # URL брокера сообщений (RabbitMQ, Redis и т.д.)
+CELERY_IMPORTS = ('moto_store.tasks',)
+# Настройки Celery для периодических задач
+CELERY_BEAT_SCHEDULE = {
+    'decrease_prices': {
+        'task': 'moto_store.tasks.decrease_prices',
+        'schedule': 1.0
+    },
+    'revert_prices': {
+        'task': 'moto_store.tasks.revert_prices',
+        'schedule': 2.0
+    },
+}
+
 
 # ...
 
 # Подключение Celery к Django
 from moto_store.celery_app import Celery
 
-app = Celery('your_project_name')
+app = Celery('moto_store')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 

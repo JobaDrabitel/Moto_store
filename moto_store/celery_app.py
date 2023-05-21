@@ -1,4 +1,4 @@
-from celery import Celery
+from celery_app import Celery
 
 # Создание экземпляра Celery
 app = Celery('moto_store')
