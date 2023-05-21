@@ -30,6 +30,7 @@ REST_FRAMEWORK = {
     # YOUR SETTINGS
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -48,7 +49,8 @@ INSTALLED_APPS = [
     'drf',
     'channels',
     'celery',
-    'ws'
+    'ws',
+    'eventlet'
 ]
 CHANNEL_LAYERS = {
     'default': {
@@ -71,11 +73,11 @@ CELERY_IMPORTS = ('moto_store.tasks',)
 CELERY_BEAT_SCHEDULE = {
     'decrease_prices': {
         'task': 'moto_store.tasks.decrease_prices',
-        'schedule': crontab(hour=17, minute=0)
+        'schedule': crontab(hour=14, minute=0) #Время по гринвичу (-3, то есть скидка в 17 00 по МСК)
     },
     'revert_prices': {
         'task': 'moto_store.tasks.revert_prices',
-        'schedule': crontab(hour=17, minute=30)
+        'schedule': crontab(hour=14, minute=30)
     },
 }
 
