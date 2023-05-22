@@ -238,17 +238,6 @@ def catalog(request):
     return render(request, 'catalog.html', context)
 
 
-
-
-
-def favorites(request):
-    # Получение избранных товаров пользователя
-    # Отображение избранных товаров
-
-    return render(request, 'favorites.html')
-
-
-
 def delivery(request):
     shipping_methods = ShippingMethod.objects.all()
     context = {
