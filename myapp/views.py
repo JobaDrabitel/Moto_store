@@ -111,6 +111,10 @@ def order_create(request):
                 correct_answer = request.session['question']['answer']
                 if user_answer == correct_answer:
                     total_price -= total_price * Decimal('0.05')
+                shipping_method_id = request.POST.get('shipping_method')
+                if shipping_method_id is not None:
+                    shipping_method = get_object_or_404(ShippingMethod, pk=shipping_method_id)
+                total_price += shipping_method.cost
                 order = Order.objects.create(user=user, total_price=total_price)
                 async_to_sync(channel_layer.group_send)(
                     "notifications",
@@ -122,9 +126,7 @@ def order_create(request):
 
                 OrderItem.objects.create(order=order, product=product, quantity=quantity, price=price)
 
-                shipping_method_id = request.POST.get('shipping_method')
-                if shipping_method_id is not None:
-                    shipping_method = get_object_or_404(ShippingMethod, pk=shipping_method_id)
+
                 payment_method_id = form.cleaned_data['payment_method'].id
                 address = form.cleaned_data['address']
                 payment_method = PaymentMethod.objects.get(pk=payment_method_id)
